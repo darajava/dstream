@@ -1,0 +1,42 @@
+.footer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 48px;
+  background-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  bottom: 0;
+
+  div {
+    padding: 20px;
+  }
+
+
+  .dstream-logo {
+    max-width: 80px;
+    cursor: pointer;
+    display: inline;
+    opacity: 0.7;
+    transition: all 0.3s;
+    position: absolute;
+    top: 17px;
+    left: 117px;
+    border-radius: 5px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.dark {
+  .footer {
+    color: #999;
+  }
+}
+
+.light {
+  .footer {
+    color: #333;
+  }
+}

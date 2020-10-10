@@ -1,0 +1,13 @@
+.header {
+  width: 100%;
+  display: flex;
+  /*justify-content: center;*/
+  padding: 0px 0;
+  background: #5f6c36;
+  margin-bottom: 45px;
+}
+
+.header img {
+  width: 300px;
+  /*border: 1px solid #e8e8e8;*/
+}

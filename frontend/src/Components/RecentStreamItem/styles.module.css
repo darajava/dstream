@@ -1,0 +1,48 @@
+.recent-stream-item {
+  display: flex;
+  border: 1px solid #888;
+  border-radius: 5px;
+  padding: 10px;
+  width: 90%;
+  margin: 10px;
+  max-width: 450px;
+}
+
+.image {
+  display: flex;
+}
+
+.image img {
+  max-height: 80px;
+  width: auto;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.button {
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 12px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(0.8);
+}
+
+.button-holder {
+  display: flex;
+  margin-top: auto;
+}
+
+.info-holder {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
