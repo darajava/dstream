@@ -34,7 +34,7 @@ const CustomerPage = () => {
 
   useEffect(() => {
     axios.get(
-      `${process.env.REACT_APP_API_URL}/customer-details`,
+      "/customer-details",
       {
         params: {
           stream_key,

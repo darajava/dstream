@@ -6,10 +6,11 @@ USE dstream;
 
 CREATE TABLE users (
   id INT NOT NULL AUTO_INCREMENT,
-  username VARCHAR(500) NOT NULL,
+  email VARCHAR(500) NOT NULL,
+  name VARCHAR(500) NOT NULL,
   password VARCHAR(1000) NOT NULL,
-  admin VARCHAR(50) DEFAULT "", -- admin will be the stream key for Customer he has access to, or "*" for su access
-  CONSTRAINT name_unique UNIQUE (username),
+  admin VARCHAR(50) DEFAULT "", -- admin will be the stream key for the Customer he has access to, or "*" for su access
+  CONSTRAINT name_unique UNIQUE (email),
   PRIMARY KEY (id)
 );
 
@@ -27,5 +28,6 @@ CREATE TABLE customers (
   CONSTRAINT name_unique UNIQUE (stream_key, name),
   PRIMARY KEY (id)
 );
+
 
 INSERT INTO customers (stream_key, name, theme) VALUES ("dstream", "DStream", "light");

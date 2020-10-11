@@ -4,6 +4,7 @@ import styles from './login.module.css';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
 
@@ -17,6 +18,8 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [repeatPasswordError, setRepeatPasswordError] = useState(false);
 
+  const history = useHistory();
+
   const toggleLogin = (e) => {
     e.preventDefault();
 
@@ -24,9 +27,9 @@ const Login = () => {
     setLoggingIn(!loggingIn);
   }
 
-  function validateEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
   }
 
   const clearErrors = () => {
@@ -35,7 +38,9 @@ const Login = () => {
     setRepeatPasswordError("");
   }
 
-  const register = () => {
+  const register = e => {
+    e.preventDefault();
+    
     clearErrors();
     let hadError = false;
 
@@ -55,12 +60,23 @@ const Login = () => {
     }
 
     if (!hadError) {
-      // make req
+      axios.post(
+        '/users/register',
+        { email, password }
+      )
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+
+        });
     }
 
   }
 
-  const login = () => {
+  const login = e => {
+    e.preventDefault();
+    
     let hadError = false;
     if (!email) {
       hadError = true;
@@ -73,7 +89,20 @@ const Login = () => {
     }
 
     if (!hadError) {
-      // Req
+      axios.post(
+        '/users/login',
+        { email, password }
+      )
+        .then(res => {
+          console.log(res.data);
+          localStorage.setItem("refreshToken", res.data.refreshToken);
+          localStorage.setItem("accessToken", res.data.accessToken);
+
+          history.push("/profile");
+        })
+        .catch(err => {
+          setPasswordError("Incorrect username or password");
+        });
     }
   }
 
@@ -82,18 +111,18 @@ const Login = () => {
       <Header />
 
       <div styleName="form-container">
-        <form styleName="form">
+        <form styleName="form" onSubmit={loggingIn ? login : register}>
           <div styleName="heading">
             {loggingIn ? "Login" : "Register"}
           </div>
 
           <div styleName="row">
-            <input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} name="email" />
             {emailError && <div styleName="error">{emailError}</div>}
           </div>
 
           <div styleName="row">
-            <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)}/>
+            <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} name="password" />
             {passwordError && <div styleName="error">{passwordError}</div>}
           </div>
 
@@ -109,7 +138,7 @@ const Login = () => {
             )
           }
 
-          <button styleName="submit" onClick={loggingIn ? login : register}>
+          <button styleName="submit" type="submit">
             {loggingIn ? "Log in" : "Register"}
           </button>
 

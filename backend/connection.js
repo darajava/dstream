@@ -8,6 +8,8 @@ const connection = mysql.createConnection({
   database: 'dstream',
 });
 
+connection.query = util.promisify(connection.query).bind(connection);
+
 connection.connect((err) => {
   if (err) throw err;
   console.log('Database connection established.');
