@@ -4,11 +4,6 @@ import { useHistory, Link } from "react-router-dom";
 import Header from '../Header/Header';
 import CSSModules from 'react-css-modules';
 import styles from './profile.module.css';
-import {Elements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
-import CheckoutForm from '../CheckoutForm/CheckoutForm';
-
-const stripePromise = loadStripe("pk_test_51HbBbtDSAAIAD42iCwQiCcQe2cIwQTl18WtiG7D33sNOSFrRAFZlnWjLFtdCYMnEsfoFTHTEgXabi0mDjiWKpCcp00Ez2X583i");
 
 const Profile = () => {
   const history = useHistory();
@@ -30,12 +25,6 @@ const Profile = () => {
   return (
     <div styleName="profile">
       <Header />
-
-        <div styleName="checkout-holder">
-          <Elements stripe={stripePromise}>
-            <CheckoutForm />
-          </Elements>
-        </div>
 
         <div styleName="profile-content">
           <h3>

@@ -29,5 +29,13 @@ CREATE TABLE customers (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE subscriptions (
+  id INT NOT NULL AUTO_INCREMENT,
+  stripe_id VARCHAR(150) NOT NULL,
+  user_id INT NOT NULL,
+  stream_key VARCHAR(50) NOT NULL,
+  PRIMARY KEY (id)
+);
+
 
 INSERT INTO customers (stream_key, name, theme) VALUES ("dstream", "DStream", "light");

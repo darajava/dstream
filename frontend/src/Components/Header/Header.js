@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CSSModules from "react-css-modules";
 import styles from "./header.module.css";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import axios from "axios";
 import Loading from "../Loading/Loading";
 import { decodeAccessToken } from '../../util';
@@ -49,9 +49,9 @@ const Header = () => {
       );
     } else {
       adminBlock = (
-        <a href="#">
+        <Link to="/profile">
           Profile
-        </a>
+        </Link>
       );
     }
 

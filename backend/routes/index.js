@@ -3,6 +3,7 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 
 const connection = require('../connection.js');
+const findUserByEmail = require('../util.js').findUserByEmail;
 
 router.get('/', (req, res) => {
   connection.query('INSERT INTO customers (stream_key, name, theme) VALUES (?, ?)', ["dstream", "DStream", "light"], (err, result) => {
@@ -115,11 +116,27 @@ router.post('/create-subscription', async (req, res) => {
   // Create the subscription
   const subscription = await stripe.subscriptions.create({
     customer: req.body.customerId,
-    items: [{ price: 'price_1HbByTDSAAIAD42iXoxaf1u8' }],
+    items: [{ price: req.body.priceId }],
     expand: ['latest_invoice.payment_intent'],
   });
 
-  res.send(subscription);
+  console.log(req.body.email);
+
+  const user = await findUserByEmail(req.body.email);
+
+  connection.query(
+    'INSERT INTO subscriptions (stripe_id, user_id, stream_key) VALUES (?, ?, ?)',
+    [subscription.id, user.id, req.body.streamKey],
+    (err, result) => {
+      if (err) {
+        // TODO: XXX: Will want to roll back subscription if this fails
+        console.log(err);
+        return res.status(500).send("Something went wrong");
+      }
+      return res.send(subscription);
+    }
+  );
+
 });
 
 router.post('/retry-invoice', async (req, res) => {

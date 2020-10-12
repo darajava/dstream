@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 
 import CardSection from './CardSection';
@@ -8,15 +8,21 @@ import { decodeAccessToken } from '../../util';
 import styles from './checkout-form.module.css';
 import CSSModules from 'react-css-modules';
 
-const CheckoutForm = () => {
+import Loading from '../Loading/Loading';
+
+const CheckoutForm = ({streamKey, onSuccess}) => {
+
+  const [loading, setLoading] = useState(false);
 
   const displayError = () => {
     alert("Error");
+    setLoading(false);
   }
 
 
   const showCardError = () => {
     alert("Error!!");
+    setLoading(false);
   }
 
   const retryInvoiceWithNewPaymentMethod = ({
@@ -158,16 +164,20 @@ const CheckoutForm = () => {
   const onSubscriptionComplete = (result) => {
     // Payment was successful.
     if (result.subscription.status === 'active') {
-      alert("success");
+      setLoading(false);
+      onSuccess();
     }
   }
 
   const createSubscription = ({ customerId, paymentMethodId, priceId }) => {
+    setLoading(true);
     return (
       axios.post('/create-subscription', {
-          customerId: customerId,
-          paymentMethodId: paymentMethodId,
-          priceId: priceId,
+        customerId,
+        paymentMethodId,
+        priceId,
+        streamKey,
+        email: decodeAccessToken()['email'],
       }).then((result) => {
           if (result.error) {
             // The card had an error when trying to attach it to a customer.
@@ -258,6 +268,7 @@ const CheckoutForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      {loading && <Loading fullScreen label="Processing payment" />}
       <CardSection stripe={stripe}/>
       
     </form>

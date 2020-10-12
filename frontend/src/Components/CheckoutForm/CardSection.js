@@ -32,7 +32,7 @@ function CardSection({stripe}) {
     <div styleName="card-details">
       <CardElement options={CARD_ELEMENT_OPTIONS} />
       <div styleName="creds-holder">
-        <img src="./images/stripe.png" styleName="stripe" title="Securely processed with Stripe" />
+        <img src="/images/stripe.png" styleName="stripe" title="Securely processed with Stripe" />
         
         <svg
           xmlns="http://www.w3.org/2000/svg"

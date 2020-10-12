@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const connection = require('../connection.js');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../util.js').authenticateToken;
+const findUserByEmail = require('../util.js').findUserByEmail;
+const getUserLevel = require('../util.js').getUserLevel;
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -41,19 +43,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-
-const findUserByEmail = async email => {
-  try {
-    console.log(email);
-    const users = await connection.query("SELECT * FROM users WHERE email = ?", email);
-
-    return users[0];
-  } catch (err) {  
-    console.log(err);
-    return;
-  }
-}
-
 const authenticateUser = async (req, res, next) => {
   const user = await findUserByEmail(req.body.email)
 
@@ -90,16 +79,14 @@ const generateTokens = async email => {
   delete user.password;
   delete user.id;
 
-  console.log("'''", user);
-
   return [
     jwt.sign(user, process.env.JWT_ACCESS_TOKEN, { expiresIn: '10m' }),
     jwt.sign(user, process.env.JWT_REFRESH_TOKEN, { expiresIn: '1y' }),
   ];
 }
 
-router.post('/login', authenticateUser, (req, res) => {
-  const [accessToken, refreshToken] = generateTokens(req.body.email);
+router.post('/login', authenticateUser, async (req, res) => {
+  const [accessToken, refreshToken] = await generateTokens(req.body.email);
 
   connection.query(
     'INSERT INTO refresh_tokens (token) VALUES (?)',
@@ -122,10 +109,10 @@ router.post('/token', (req, res) => {
 
     if (!results.length) return res.status(403).send("Token doesn't exist");
 
-    jwt.verify(results[0].token, process.env.JWT_REFRESH_TOKEN, (err, payload) => {
+    jwt.verify(results[0].token, process.env.JWT_REFRESH_TOKEN, async (err, payload) => {
       if (err) return res.status(403).send("Token doesn't exist");
 
-      const accessToken = generateAccessToken({ name: payload.name });
+      const [accessToken, _] = await generateTokens(jwt.decode(refreshToken).email);
       res.json({ accessToken });
     });
   });
@@ -142,6 +129,31 @@ router.delete('/logout', (req, res) => {
 
 router.get('/subscriptions', authenticateToken, (req, res) => {
   res.sendStatus(200);
+});
+
+router.get('/can-watch', authenticateToken, async (req, res) => {
+
+  const userLevel = getUserLevel(req);
+
+  if (userLevel === "*" || userLevel === req.query.streamKey) {
+    return res.json({authenticated: true});
+  }
+
+  try {
+    results = await connection.query(
+      'SELECT * FROM subscriptions JOIN users WHERE email = ? AND stream_key = ?',
+      [req.query.email, req.query.streamKey],
+    );
+
+    if (results.length) {
+      return res.json({authenticated: true})
+    } else {
+      return res.json({authenticated: false});
+    }
+  } catch (e) {
+    console.log('here');
+    return res.sendStatus(500);
+  }
 });
 
 module.exports = router;

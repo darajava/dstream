@@ -8,6 +8,7 @@ import Footer from '../Footer/Footer';
 import styles from "./customer-page.module.scss";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Header from '../Header/Header';
 
 const CustomerPage = () => {
 
@@ -71,6 +72,7 @@ const CustomerPage = () => {
 
   return (
     <div styleName={customerDetails.theme || "light"}>
+      <Header />
       <div styleName="customer-page">
         <div styleName="header">
           <img styleName="logo" src={`/logos/${stream_key}.png`} />
@@ -83,7 +85,7 @@ const CustomerPage = () => {
         <div styleName="video-container">
           <div styleName="video-player">
             <div styleName="content">
-              <VideoPlayer { ...videoJsOptions } />
+              <VideoPlayer { ...videoJsOptions } streamKey={stream_key} name={customerDetails.name} />
             </div>
           </div>
         </div>
