@@ -4,8 +4,9 @@ import styles from "./header.module.css";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import Loading from "../Loading/Loading";
+import { decodeAccessToken } from '../../util';
 
-const Header = ({user}) => {
+const Header = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +32,7 @@ const Header = ({user}) => {
   }
 
   let userBlock;
+  let user = decodeAccessToken();
   if (user) {
     let adminBlock;
     if (user.admin === "*") {

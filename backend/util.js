@@ -8,7 +8,11 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, payload) => {
-    if (err) return res.sendStatus(401);
+    if (err) {
+      console.log(err);
+      console.log(token);
+      return res.sendStatus(401);
+    }
 
     req.payload = payload;
     next();

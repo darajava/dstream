@@ -5,10 +5,12 @@ import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import Loading from '../Loading/Loading';
 
 const Login = () => {
 
   const [loggingIn, setLoggingIn] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +40,13 @@ const Login = () => {
     setRepeatPasswordError("");
   }
 
+  const proceedToProfile = (accessToken, refreshToken) => {
+    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+
+    history.push("/profile");
+  }
+
   const register = e => {
     e.preventDefault();
     
@@ -60,16 +69,29 @@ const Login = () => {
     }
 
     if (!hadError) {
-      axios.post(
-        '/users/register',
-        { email, password }
-      )
-        .then(res => {
-          console.log(res);
+      setLoading(true);
+
+      axios.post('/create-customer', { email })
+      .then(res => {
+        console.error(res);
+
+        axios.post(
+          '/users/register',
+          { email, password, stripe_customer_id: res.data.customer.id }
+        )
+        .then(res2 => {
+          setTimeout(() => {
+            proceedToProfile(res2.data.accessToken, res2.data.refreshToken);
+          }, 100);
+
         })
         .catch(err => {
-
+          console.log(err);
+          setRepeatPasswordError(err.response.data);
+          setLoading(false);
         });
+      });
+     
     }
 
   }
@@ -95,10 +117,7 @@ const Login = () => {
       )
         .then(res => {
           console.log(res.data);
-          localStorage.setItem("refreshToken", res.data.refreshToken);
-          localStorage.setItem("accessToken", res.data.accessToken);
-
-          history.push("/profile");
+          proceedToProfile(res.data.accessToken, res.data.refreshToken);
         })
         .catch(err => {
           setPasswordError("Incorrect username or password");
@@ -109,6 +128,8 @@ const Login = () => {
   return (
     <div styleName="login">
       <Header />
+
+      {loading && <Loading fullScreen />}
 
       <div styleName="form-container">
         <form styleName="form" onSubmit={loggingIn ? login : register}>

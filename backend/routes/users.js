@@ -14,24 +14,30 @@ router.post('/register', async (req, res) => {
   try {
     const password = await bcrypt.hash(req.body.password, 10);
     
+    console.log(req.body);
+
     connection.query(
-      'INSERT INTO users (email, password) VALUES (?, ?)',
-      [req.body.email, password],
-      (err, result) => {
+      'INSERT INTO users (email, password, stripe_customer_id) VALUES (?, ?, ?)',
+      [req.body.email, password, req.body.stripe_customer_id],
+      async (err, result) => {
         if (err) {
           if (err.code === "ER_DUP_ENTRY") {
             return res.status(500).send("User already exists.");
           }
-            console.log(err);
-          return res.status(500).send("Something went wrong while registering.");
         }
 
-        res.sendStatus(203);
+        try {
+          const [accessToken, refreshToken] = await generateTokens(req.body.email);
+          return res.status(203).json({ accessToken, refreshToken });
+        } catch (e) {
+          console.log(e);
+          return res.status(500).send("Something went wrong while registering.");
+        }
       }
     );
   } catch (e) {
     console.log(e)
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 
@@ -67,14 +73,33 @@ const authenticateUser = async (req, res, next) => {
   }
 }
 
-const generateAccessToken = user => {
-  return jwt.sign(user, process.env.JWT_ACCESS_TOKEN, { expiresIn: '10m' });
+const generateTokens = async email => {
+  let results;
+
+  try {
+    results = await connection.query(
+      'SELECT * FROM users WHERE email = (?)',
+      [email],
+    );
+  } catch (e) {
+    throw e;
+  }
+
+  const user = {...results[0]};
+
+  delete user.password;
+  delete user.id;
+
+  console.log("'''", user);
+
+  return [
+    jwt.sign(user, process.env.JWT_ACCESS_TOKEN, { expiresIn: '10m' }),
+    jwt.sign(user, process.env.JWT_REFRESH_TOKEN, { expiresIn: '1y' }),
+  ];
 }
 
 router.post('/login', authenticateUser, (req, res) => {
-  const user = { email: req.body.email, admin: req.body.admin}
-  const accessToken = generateAccessToken(user);
-  const refreshToken = jwt.sign(user, process.env.JWT_REFRESH_TOKEN);
+  const [accessToken, refreshToken] = generateTokens(req.body.email);
 
   connection.query(
     'INSERT INTO refresh_tokens (token) VALUES (?)',

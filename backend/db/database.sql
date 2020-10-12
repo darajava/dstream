@@ -7,8 +7,8 @@ USE dstream;
 CREATE TABLE users (
   id INT NOT NULL AUTO_INCREMENT,
   email VARCHAR(500) NOT NULL,
-  name VARCHAR(500) NOT NULL,
   password VARCHAR(1000) NOT NULL,
+  stripe_customer_id VARCHAR(500),
   admin VARCHAR(50) DEFAULT "", -- admin will be the stream key for the Customer he has access to, or "*" for su access
   CONSTRAINT name_unique UNIQUE (email),
   PRIMARY KEY (id)
