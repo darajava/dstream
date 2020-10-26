@@ -6,7 +6,7 @@ const Footer = ({onClick, theme}) => {
   return (
     <div styleName={`footer ${theme || "light"}`}>
       <div>
-        Powered by <img src="/images/dstream-solo.jpeg" styleName="dstream-logo" onClick={onClick}/>
+        Powered by <img src="./images/dstream-solo.jpeg" styleName="dstream-logo" onClick={onClick}/>
       </div>
       <div>
         &copy; 2020 all rights reserved

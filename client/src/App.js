@@ -33,12 +33,14 @@ axios.interceptors.response.use(response => response, async (error) => {
   }
   return Promise.reject(error);
 });
+
+alert();
       
 
 function App() {
   return (
     <div>
-      <Router>
+      <Router basename="app">
         <Route exact path="/">
           <Home />
         </Route>

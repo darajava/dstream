@@ -71,7 +71,7 @@ const Header = () => {
   return (
     <div styleName="header">
       {loading && <Loading fullScreen />}
-      <img src="/images/dstream.jpeg" />
+      <img src="./images/dstream.jpeg" />
       {userBlock}
     </div>
   );
