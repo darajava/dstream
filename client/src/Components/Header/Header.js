@@ -37,22 +37,22 @@ const Header = () => {
     let adminBlock;
     if (user.admin === "*") {
       adminBlock = (
-        <a href="#">
+        <Link to="/admin">
           Superuser
-        </a>
+        </Link>
       );
     } else if (user.admin.length) {
       adminBlock = (
-        <a href="#">
-          {user.admin} Admin
-        </a>
-      );
-    } else {
-      adminBlock = (
-        <Link to="/profile">
-          Profile
+        <Link to="/admin">
+          {user.admin} Admin Panel
         </Link>
       );
+    } else {
+      // adminBlock = (
+      //   <Link to="/profile">
+      //     Profile
+      //   </Link>
+      // );
     }
 
     userBlock = (
@@ -71,7 +71,7 @@ const Header = () => {
   return (
     <div styleName="header">
       {loading && <Loading fullScreen />}
-      <img src="./images/dstream.jpeg" />
+      <img src="/images/dstream.jpeg" />
       {userBlock}
     </div>
   );

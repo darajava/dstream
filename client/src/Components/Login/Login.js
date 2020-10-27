@@ -1,13 +1,11 @@
 import React, { useState, useEffect, Fragment } from "react";
 import CSSModules from "react-css-modules";
 import styles from './login.module.css';
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import Loading from '../Loading/Loading';
 
-const Login = () => {
+const Login = ({returnURL}) => {
 
   const [loggingIn, setLoggingIn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,7 +42,12 @@ const Login = () => {
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("accessToken", accessToken);
 
-    history.push("/profile");
+    if (returnURL) {
+      document.location = returnURL;
+      window.location.reload(false);
+    } else {
+      history.push("/profile");
+    }
   }
 
   const register = e => {
@@ -127,8 +130,6 @@ const Login = () => {
 
   return (
     <div styleName="login">
-      <Header />
-
       {loading && <Loading fullScreen />}
 
       <div styleName="form-container">
@@ -172,8 +173,6 @@ const Login = () => {
 
         </form>
       </div>
-
-      <Footer />
     </div>
   );
 }

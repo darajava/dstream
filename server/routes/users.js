@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const connection = require('../connection.js');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../util.js').authenticateToken;
+const authenticateAdminToken = require('../util.js').authenticateAdminToken;
 const findUserByEmail = require('../util.js').findUserByEmail;
 const getUserLevel = require('../util.js').getUserLevel;
 
@@ -119,7 +120,6 @@ router.post('/token', (req, res) => {
 });
 
 router.delete('/logout', (req, res) => {
-  console.log(req.query);
   connection.query(`DELETE FROM refresh_tokens WHERE token = ?`, [req.query.token], (err, results) => {
     if (err) return res.status(500).send("Something went wrong");
 
@@ -129,6 +129,40 @@ router.delete('/logout', (req, res) => {
 
 router.get('/subscriptions', authenticateToken, (req, res) => {
   res.sendStatus(200);
+});
+
+router.get('/customer-info', authenticateAdminToken, (req, res) => {
+  if (req.payload.admin !== req.query.channel) {
+    return res.sendStatus(401);
+  }
+
+  connection.query(`SELECT * FROM customers JOIN prices WHERE stream_key = ?`, [req.query.channel], (err, results) => {
+    if (err) return res.status(500).send("Something went wrong");
+    return res.status(200).send(results[0]);
+  });
+});
+
+
+router.put('/customer-info', authenticateAdminToken, (req, res) => {
+  if (req.payload.admin !== req.body.channel) {
+    return res.sendStatus(401);
+  }
+
+  if (!req.body.value) req.body.value=null;
+
+  connection.query(`UPDATE customers SET ${req.body.key} = ? WHERE stream_key = ?`, [req.body.value, req.body.channel], (err, results) => {
+    console.log(err);
+    if (err) return res.status(500).send("Something went wrong");
+    return res.status(203).send();
+  });
+});
+
+router.get('/prices', authenticateAdminToken, (req, res) => {
+  connection.query(`SELECT * FROM prices`, [], (err, results) => {
+    if (err) return res.status(500).send("Something went wrong");
+
+    return res.status(200).send(results);
+  });
 });
 
 router.get('/can-watch', authenticateToken, async (req, res) => {
@@ -141,7 +175,7 @@ router.get('/can-watch', authenticateToken, async (req, res) => {
 
   try {
     results = await connection.query(
-      'SELECT * FROM subscriptions JOIN users WHERE email = ? AND stream_key = ?',
+      'SELECT * FROM subscriptions JOIN users ON subscriptions.user_id = users.id WHERE email = ? AND stream_key = ?',
       [req.query.email, req.query.streamKey],
     );
 

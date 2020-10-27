@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const connection = require('./connection.js');
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next, verifyAdmin) => {
   const authHeader = req.headers['authorization'];
 
   const token = authHeader && authHeader.split(' ')[1];
@@ -15,9 +15,18 @@ const authenticateToken = (req, res, next) => {
       return res.sendStatus(401);
     }
 
+    console.log(payload);
+    if (verifyAdmin && !payload.admin.length) {
+      return res.sendStatus(401);
+    }
+
     req.payload = payload;
     next();
   });
+}
+
+const authenticateAdminToken = (req, res, next) => {
+  return authenticateToken(req, res, next, true);
 }
 
 const getUserLevel = (req) => {
@@ -43,6 +52,7 @@ const findUserByEmail = async email => {
 
 module.exports = {
   authenticateToken,
+  authenticateAdminToken,
   findUserByEmail,
   getUserLevel,
 }

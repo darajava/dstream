@@ -1,10 +1,15 @@
 import React from 'react';
 import Home from './Components/Home/Home';
+import Header from './Components/Header/Header';
+import Footer from './Components/Footer/Footer';
 import CustomerPage from './Components/CustomerPage/CustomerPage';
 import Login from './Components/Login/Login';
+import Admin from './Components/Admin/Admin';
 import Profile from './Components/Profile/Profile';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import axios from "axios";
+import CSSModules from 'react-css-modules';
+import styles from './App.module.css';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
@@ -33,8 +38,6 @@ axios.interceptors.response.use(response => response, async (error) => {
   }
   return Promise.reject(error);
 });
-
-alert();
       
 
 function App() {
@@ -48,14 +51,21 @@ function App() {
           <CustomerPage />
         </Route>
         <Route path="/login">
-          <Login />
+          <div styleName="login-holder">
+            <Header />
+            <Login />
+            <Footer />
+          </div>
         </Route>
         <Route path="/profile">
           <Profile />
+        </Route>
+        <Route path="/admin">
+          <Admin />
         </Route>
       </Router>
     </div>
   );
 }
 
-export default App;
+export default CSSModules(App, styles);

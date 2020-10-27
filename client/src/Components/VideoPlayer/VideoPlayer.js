@@ -91,9 +91,12 @@ const VideoPlayer = (props) => {
           initPlayer();
         }
       }).catch(e => {
-        alert("err", e)
+        setPaid(false);
+        setLoading(false);
       })
     } else {
+      setPaid(false);
+      setLoading(false);
       // do request to see if anyone's allowed access
     }
   }, [paid]);
